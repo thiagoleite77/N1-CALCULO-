@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Séries Matemáticas - Taylor, Maclaurin e Fourier</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f4f4f4;
+      line-height: 1.6;
+    }
+    section {
+      background: #fff;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1, h2 {
+      color: #2c3e50;
+    }
+    .plot-container {
+      width: 100%;
+      height: 400px;
+      margin: 20px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .controls {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+    }
+    .control-group {
+      margin-bottom: 10px;
+    }
+    label {
+      display: inline-block;
+      width: 150px;
+      font-weight: bold;
+    }
+    input[type="range"] {
+      width: 200px;
+    }
+    .value-display {
+      display: inline-block;
+      width: 50px;
+      text-align: center;
+    }
+    button {
+      background: #3498db;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+    button:hover {
+      background: #2980b9;
+    }
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 20px;
+      color: #7f8c8d;
+    }
+    .code-example {
+      background: #2c3e50;
+      color: #ecf0f1;
+      padding: 15px;
+      border-radius: 4px;
+      font-family: monospace;
+      overflow-x: auto;
+      margin: 15px 0;
+    }
+    .explanation {
+      margin: 15px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Séries Matemáticas</h1>
+  <p>Esta página contém conteúdos sobre três séries matemáticas importantes com exemplos interativos em Python executados diretamente no navegador.</p>
+
+  <section>
+    <h2>Série de Taylor</h2>
+    <div class="explanation">
+      <p>A série de Taylor é uma representação de uma função como uma soma infinita de termos calculados a partir dos valores das derivadas da função em um único ponto. Aqui, aproximamos a função ln(x) em torno de x = 1.</p>
+    </div>
+    <div class="controls">
+      <div class="control-group">
+        <label for="taylor-terms">Número de termos:</label>
+        <input type="range" id="taylor-terms" min="1" max="20" value="4">
+        <span id="taylor-terms-value" class="value-display">4</span>
+      </div>
+      <div class="control-group">
+        <label for="taylor-range">Intervalo:</label>
+        <input type="range" id="taylor-range" min="10" max="100" value="50">
+        <span id="taylor-range-value" class="value-display">0.5-2.0</span>
+      </div>
+      <button id="run-taylor">Executar Série de Taylor</button>
+    </div>
+    <div class="plot-container" id="taylor-plot"></div>
+    <div class="code-example">
+// Código Python para Série de Taylor
+def taylor_ln(x, n):
+    terms = [((-1)**(k+1)) * ((x-1)**k) / k for k in range(1, n+1)]
+    return sum(terms)
+    </div>
+  </section>
+
+  <section>
+    <h2>Série de Maclaurin</h2>
+    <div class="explanation">
+      <p>A série de Maclaurin é um caso especial da série de Taylor, centrada em zero. Aqui, aproximamos a função seno usando a série de Maclaurin.</p>
+    </div>
+    <div class="controls">
+      <div class="control-group">
+        <label for="maclaurin-terms">Número de termos:</label>
+        <input type="range" id="maclaurin-terms" min="1" max="10" value="3">
+        <span id="maclaurin-terms-value" class="value-display">3</span>
+      </div>
+      <div class="control-group">
+        <label for="maclaurin-range">Intervalo:</label>
+        <input type="range" id="maclaurin-range" min="5" max="20" value="10">
+        <span id="maclaurin-range-value" class="value-display">-10-10</span>
+      </div>
+      <button id="run-maclaurin">Executar Série de Maclaurin</button>
+    </div>
+    <div class="plot-container" id="maclaurin-plot"></div>
+    <div class="code-example">
+// Código Python para Série de Maclaurin
+def maclaurin_sin(x, n):
+    result = sum(((-1)**k) * (x**(2*k+1)) / math.factorial(2*k+1) for k in range(n))
+    return result
+    </div>
+  </section>
+
+  <section>
+    <h2>Série de Fourier</h2>
+    <div class="explanation">
+      <p>A série de Fourier representa uma função periódica como uma soma de senos e cossenos. Aqui, aproximamos a função f(x)=x usando a série de Fourier.</p>
+    </div>
+    <div class="controls">
+      <div class="control-group">
+        <label for="fourier-terms">Número de harmônicos:</label>
+        <input type="range" id="fourier-terms" min="1" max="100" value="10">
+        <span id="fourier-terms-value" class="value-display">10</span>
+      </div>
+      <button id="run-fourier">Executar Série de Fourier</button>
+    </div>
+    <div class="plot-container" id="fourier-plot"></div>
+    <div class="code-example">
+// Código Python para Série de Fourier
+def fourier_series(x, n_terms):
+    result = 0
+    for n in range(1, n_terms+1):
+        result += 2*((-1)**(n+1) / n) * math.sin(n*x)
+    return result
+    </div>
+  </section>
+
+  <div class="loading" id="loading">
+    <p>Carregando Pyodide e executando código Python...</p>
+  </div>
+
+  <script>
+    // Inicializar Pyodide
+    let pyodide;
+    async function initializePyodide() {
+      document.getElementById('loading').style.display = 'block';
+      pyodide = await loadPyodide();
+      await pyodide.loadPackage(["numpy", "matplotlib"]);
+      document.getElementById('loading').style.display = 'none';
+      console.log("Pyodide carregado com sucesso!");
+    }
+
+    // Configurar controles de slider
+    function setupSlider(sliderId, displayId, formatFunction) {
+      const slider = document.getElementById(sliderId);
+      const display = document.getElementById(displayId);
+      
+      slider.addEventListener('input', function() {
+        display.textContent = formatFunction(this.value);
+      });
+      
+      // Inicializar valor
+      display.textContent = formatFunction(slider.value);
+    }
+
+    // Funções de formatação para os sliders
+    function formatTaylorTerms(value) {
+      return value;
+    }
+    
+    function formatTaylorRange(value) {
+      const min = 0.5;
+      const max = 2.0;
+      return `${min}-${max}`;
+    }
+    
+    function formatMaclaurinTerms(value) {
+      return value;
+    }
+    
+    function formatMaclaurinRange(value) {
+      const range = parseInt(value);
+      return `-${range}-${range}`;
+    }
+    
+    function formatFourierTerms(value) {
+      return value;
+    }
+
+    // Executar código Python
+    async function runPythonCode(code) {
+      if (!pyodide) {
+        alert("Pyodide ainda não foi carregado. Aguarde um momento e tente novamente.");
+        return;
+      }
+      
+      try {
+        return await pyodide.runPythonAsync(code);
+      } catch (error) {
+        console.error("Erro ao executar código Python:", error);
+        alert("Erro ao executar código Python: " + error.message);
+      }
+    }
+
+    // Funções para executar cada série
+    async function runTaylor() {
+      const terms = document.getElementById('taylor-terms').value;
+      
+      const code = `
+import numpy as np
+import matplotlib.pyplot as plt
+import base64
+from io import BytesIO
+
+def taylor_ln(x, n):
+    terms = [((-1)**(k+1)) * ((x-1)**k) / k for k in range(1, n+1)]
+    return np.sum(terms)
+
+# Amostragem
+x_vals = np.linspace(0.5, 2, 200)
+real_ln = np.log(x_vals)
+
+plt.figure(figsize=(8, 6))
+plt.plot(x_vals, real_ln, label='ln(x) real', linewidth=2)
+approx = [taylor_ln(x, ${terms}) for x in x_vals]
+plt.plot(x_vals, approx, label='${terms} termos', linestyle='--')
+
+plt.title("Aproximação de ln(x) com Série de Taylor (centro = 1)")
+plt.grid(True, alpha=0.3)
+plt.legend()
+plt.xlabel('x')
+plt.ylabel('f(x)')
+
+# Salvar figura como base64
+buf = BytesIO()
+plt.savefig(buf, format='png', dpi=100)
+plt.close()
+buf.seek(0)
+img_str = base64.b64encode(buf.read()).decode('utf-8')
+img_str
+`;
+      
+      const imgData = await runPythonCode(code);
+      if (imgData) {
+        document.getElementById('taylor-plot').innerHTML = `<img src="data:image/png;base64,${imgData}" style="width:100%; height:100%; object-fit:contain;">`;
+      }
+    }
+
+    async function runMaclaurin() {
+      const terms = document.getElementById('maclaurin-terms').value;
+      const range = document.getElementById('maclaurin-range').value;
+      
+      const code = `
+import numpy as np
+import matplotlib.pyplot as plt
+import math
+import base64
+from io import BytesIO
+
+def maclaurin_sin(x, n):
+    result = sum(((-1)**k) * (x**(2*k+1)) / math.factorial(2*k+1) for k in range(n))
+    return result
+
+# Amostragem
+x_vals = np.linspace(-${range}, ${range}, 400)
+plt.figure(figsize=(8, 6))
+plt.plot(x_vals, np.sin(x_vals), label='sin(x) real', linewidth=2)
+
+approx = [maclaurin_sin(x, ${terms}) for x in x_vals]
+plt.plot(x_vals, approx, label='${terms} termos', linestyle='--')
+
+plt.title("Aproximação de sin(x) — Série de Maclaurin")
+plt.grid(True, alpha=0.3)
+plt.legend()
+plt.xlabel('x')
+plt.ylabel('f(x)')
+
+# Salvar figura como base64
+buf = BytesIO()
+plt.savefig(buf, format='png', dpi=100)
+plt.close()
+buf.seek(0)
+img_str = base64.b64encode(buf.read()).decode('utf-8')
+img_str
+`;
+      
+      const imgData = await runPythonCode(code);
+      if (imgData) {
+        document.getElementById('maclaurin-plot').innerHTML = `<img src="data:image/png;base64,${imgData}" style="width:100%; height:100%; object-fit:contain;">`;
+      }
+    }
+
+    async function runFourier() {
+      const terms = document.getElementById('fourier-terms').value;
+      
+      const code = `
+import numpy as np
+import matplotlib.pyplot as plt
+import math
+import base64
+from io import BytesIO
+
+def fourier_series(x, n_terms):
+    result = 0
+    for n in range(1, n_terms+1):
+        result += 2*((-1)**(n+1) / n) * math.sin(n*x)
+    return result
+
+# Amostragem
+x_vals = np.linspace(-math.pi, math.pi, 600)
+plt.figure(figsize=(8, 6))
+plt.plot(x_vals, x_vals, label='f(x)=x real', linewidth=2)
+
+approx = [fourier_series(x, ${terms}) for x in x_vals]
+plt.plot(x_vals, approx, label='${terms} harmônicos', linestyle='--')
+
+plt.title("Série de Fourier — f(x)=x")
+plt.grid(True, alpha=0.3)
+plt.legend()
+plt.xlabel('x')
+plt.ylabel('f(x)')
+
+# Salvar figura como base64
+buf = BytesIO()
+plt.savefig(buf, format='png', dpi=100)
+plt.close()
+buf.seek(0)
+img_str = base64.b64encode(buf.read()).decode('utf-8')
+img_str
+`;
+      
+      const imgData = await runPythonCode(code);
+      if (imgData) {
+        document.getElementById('fourier-plot').innerHTML = `<img src="data:image/png;base64,${imgData}" style="width:100%; height:100%; object-fit:contain;">`;
+      }
+    }
+
+    // Inicializar a página
+    document.addEventListener('DOMContentLoaded', async function() {
+      // Configurar sliders
+      setupSlider('taylor-terms', 'taylor-terms-value', formatTaylorTerms);
+      setupSlider('taylor-range', 'taylor-range-value', formatTaylorRange);
+      setupSlider('maclaurin-terms', 'maclaurin-terms-value', formatMaclaurinTerms);
+      setupSlider('maclaurin-range', 'maclaurin-range-value', formatMaclaurinRange);
+      setupSlider('fourier-terms', 'fourier-terms-value', formatFourierTerms);
+      
+      // Configurar botões
+      document.getElementById('run-taylor').addEventListener('click', runTaylor);
+      document.getElementById('run-maclaurin').addEventListener('click', runMaclaurin);
+      document.getElementById('run-fourier').addEventListener('click', runFourier);
+      
+      // Inicializar Pyodide
+      await initializePyodide();
+      
+      // Executar exemplos iniciais
+      runTaylor();
+      runMaclaurin();
+      runFourier();
+    });
+  </script>
+</body>
+</html>
