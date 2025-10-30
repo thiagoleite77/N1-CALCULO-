@@ -9,10 +9,6 @@ Execute **código Python diretamente no navegador** usando **Pyodide**! 🚀
 
 ---
 
-##  Demonstração
-
-▶️ **Acesse a Aplicação Online**  
-*(adicione o link quando o projeto estiver hospedado)*
 
 ---
 
