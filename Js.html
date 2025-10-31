@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Séries Matemáticas - Taylor, Maclaurin e Fourier</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f4f4f4;
+      line-height: 1.6;
+    }
+    section {
+      background: #fff;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .plot-container {
+      width: 100%;
+      height: 400px;
+      margin: 20px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      overflow: hidden;
+      background: white;
+    }
+    .controls {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+    }
+    .control-group {
+      margin-bottom: 10px;
+    }
+    label {
+      display: inline-block;
+      width: 180px;
+      font-weight: bold;
+    }
+    input[type="range"] {
+      width: 200px;
+      vertical-align: middle;
+    }
+    .value-display {
+      display: inline-block;
+      width: 80px;
+      text-align: center;
+      font-weight: bold;
+    }
+    button {
+      background: #3498db;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 10px;
+      font-size: 14px;
+    }
+    button:hover {
+      background: #2980b9;
+    }
+    button:disabled {
+      background: #95a5a6;
+      cursor: not-allowed;
+    }
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: #7f8c8d;
+    }
+    .error {
+      color: #e74c3c;
+      padding: 10px;
+      background: #fadbd8;
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+    .success {
+      color: #27ae60;
+      padding: 10px;
+      background: #d5f4e6;
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+    h1 {
+      color: #2c3e50;
+      text-align: center;
+    }
+    h2 {
+      color: #34495e;
+      border-bottom: 2px solid #3498db;
+      padding-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Séries Matemáticas - Taylor, Maclaurin e Fourier</h1>
+
+  <!-- Série de Taylor -->
+  <section>
+    <h2>Série de Taylor - Aproximação de ln(x)</h2>
+    <p>A série de Taylor aproxima funções usando polinômios baseados nas derivadas em um ponto específico. Aqui aproximamos ln(x) em torno de x = 1.</p>
+    
+    <div class="controls">
+      <div class="control-group">
+        <label for="taylor-terms">Número de termos:</label>
+        <input type="range" id="taylor-terms" min="1" max="20" value="4">
+        <span id="taylor-terms-value" class="value-display">4</span>
+      </div>
+      <div class="control-group">
+        <label for="taylor-min">Intervalo mínimo:</label>
+        <input type="range" id="taylor-min" min="0.1" max="0.9" step="0.1" value="0.5">
+        <span id="taylor-min-value" class="value-display">0.5</span>
+      </div>
+      <div class="control-group">
+        <label for="taylor-max">Intervalo máximo:</label>
+        <input type="range" id="taylor-max" min="1.1" max="3.0" step="0.1" value="2.0">
+        <span id="taylor-max-value" class="value-display">2.0</span>
+      </div>
+      <button id="run-taylor">Executar Série de Taylor</button>
+      <button id="reset-taylor">Reiniciar</button>
+    </div>
+
+    <div id="taylor-status" class="status"></div>
+    <div class="plot-container" id="taylor-plot">
+      <div class="loading">
+        <p>O gráfico será exibido aqui após a execução...</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Série de Maclaurin -->
+  <section>
+    <h2>Série de Maclaurin - Aproximação de sin(x)</h2>
+    <p>A série de Maclaurin é um caso especial da série de Taylor centrada em zero. Aqui aproximamos sin(x).</p>
+    
+    <div class="controls">
+      <div class="control-group">
+        <label for="maclaurin-terms">Número de termos:</label>
+        <input type="range" id="maclaurin-terms" min="1" max="10" value="3">
+        <span id="maclaurin-terms-value" class="value-display">3</span>
+      </div>
+      <div class="control-group">
+        <label for="maclaurin-range">Intervalo:</label>
+        <input type="range" id="maclaurin-range" min="5" max="20" value="10">
+        <span id="maclaurin-range-value" class="value-display">-10 a 10</span>
+      </div>
+      <button id="run-maclaurin">Executar Série de Maclaurin</button>
+      <button id="reset-maclaurin">Reiniciar</button>
+    </div>
+
+    <div id="maclaurin-status" class="status"></div>
+    <div class="plot-container" id="maclaurin-plot">
+      <div class="loading">
+        <p>O gráfico será exibido aqui após a execução...</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Série de Fourier -->
+  <section>
+    <h2>Série de Fourier - Aproximação de f(x) = x</h2>
+    <p>A série de Fourier representa funções periódicas como soma de senos e cossenos. Aqui aproximamos f(x) = x no intervalo [-π, π].</p>
+    
+    <div class="controls">
+      <div class="control-group">
+        <label for="fourier-terms">Número de harmônicos:</label>
+        <input type="range" id="fourier-terms" min="1" max="100" value="10">
+        <span id="fourier-terms-value" class="value-display">10</span>
+      </div>
+      <button id="run-fourier">Executar Série de Fourier</button>
+      <button id="reset-fourier">Reiniciar</button>
+    </div>
+
+    <div id="fourier-status" class="status"></div>
+    <div class="plot-container" id="fourier-plot">
+      <div class="loading">
+        <p>O gráfico será exibido aqui após a execução...</p>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    let pyodide;
+    let isInitialized = false;
+
+    // Função para mostrar status
+    function showStatus(section, message, type = 'info') {
+      const statusDiv = document.getElementById(`${section}-status`);
+      const className = type === 'error' ? 'error' : type === 'success' ? 'success' : 'info';
+      statusDiv.innerHTML = `<div class="${className}">${message}</div>`;
+    }
+
+    // Configurar controles deslizantes para Taylor
+    document.getElementById('taylor-terms').addEventListener('input', function() {
+      document.getElementById('taylor-terms-value').textContent = this.value;
+    });
+    
+    document.getElementById('taylor-min').addEventListener('input', function() {
+      document.getElementById('taylor-min-value').textContent = this.value;
+    });
+    
+    document.getElementById('taylor-max').addEventListener('input', function() {
+      document.getElementById('taylor-max-value').textContent = this.value;
+    });
+
+    // Configurar controles deslizantes para Maclaurin
+    document.getElementById('maclaurin-terms').addEventListener('input', function() {
+      document.getElementById('maclaurin-terms-value').textContent = this.value;
+    });
+    
+    document.getElementById('maclaurin-range').addEventListener('input', function() {
+      const range = parseInt(this.value);
+      document.getElementById('maclaurin-range-value').textContent = `-${range} a ${range}`;
+    });
+
+    // Configurar controles deslizantes para Fourier
+    document.getElementById('fourier-terms').addEventListener('input', function() {
+      document.getElementById('fourier-terms-value').textContent = this.value;
+    });
+
+    // Inicializar Pyodide
+    async function initializePyodide() {
+      try {
+        showStatus('taylor', '🚀 Inicializando Pyodide... Isso pode levar alguns segundos.');
+        
+        // Desabilitar todos os botões
+        document.querySelectorAll('button').forEach(btn => {
+          if (btn.id.startsWith('run-') || btn.id.startsWith('reset-')) {
+            btn.disabled = true;
+          }
+        });
+        
+        pyodide = await loadPyodide();
+        await pyodide.loadPackage(["numpy", "matplotlib"]);
+        
+        isInitialized = true;
+        
+        // Reabilitar todos os botões
+        document.querySelectorAll('button').forEach(btn => {
+          if (btn.id.startsWith('run-') || btn.id.startsWith('reset-')) {
+            btn.disabled = false;
+          }
+        });
+        
+        showStatus('taylor', '✅ Pyodide carregado com sucesso! Agora você pode executar as séries.', 'success');
+        showStatus('maclaurin', '✅ Pyodide carregado com sucesso!', 'success');
+        showStatus('fourier', '✅ Pyodide carregado com sucesso!', 'success');
+        
+      } catch (error) {
+        showStatus('taylor', `❌ Erro ao carregar Pyodide: ${error.message}`, 'error');
+        document.querySelectorAll('button').forEach(btn => {
+          if (btn.id.startsWith('run-') || btn.id.startsWith('reset-')) {
+            btn.disabled = true;
+          }
+        });
+      }
+    }
+
+    // Executar Série de Taylor
+    async function runTaylor() {
+      if (!isInitialized) {
+        showStatus('taylor', '⚠️ Pyodide ainda não foi carregado. Aguarde a inicialização...', 'error');
+        return;
+      }
+
+      const terms = parseInt(document.getElementById('taylor-terms').value);
+      const min = parseFloat(document.getElementById('taylor-min').value);
+      const max = parseFloat(document.getElementById('taylor-max').value);
+      
+      try {
+        showStatus('taylor', `🔄 Executando Série de Taylor com ${terms} termos no intervalo [${min}, ${max}]...`);
+        document.getElementById('run-taylor').disabled = true;
+
+        const code = `
+import numpy as np
+import matplotlib.pyplot as plt
+import base64
+from io import BytesIO
+
+def taylor_ln(x, n):
+    """Aproxima ln(x) em torno de x = 1 com n termos."""
+    terms = [((-1)**(k+1)) * ((x-1)**k) / k for k in range(1, n+1)]
+    return np.sum(terms)
+
+# Amostragem com intervalo ajustável
+x_vals = np.linspace(${min}, ${max}, 200)
+real_ln = np.log(x_vals)
+
+plt.figure(figsize=(10, 6))
+plt.plot(x_vals, real_ln, 'b-', label='ln(x) real', linewidth=2)
+
+# Mostrar aproximações
+approx = [taylor_ln(x, ${terms}) for x in x_vals]
+plt.plot(x_vals, approx, 'r--', label='Taylor (${terms} termos)', linewidth=2)
+
+plt.title(f"Aproximação de ln(x) com Série de Taylor (centro = 1)\\nIntervalo: [${min}, ${max}] - ${terms} termos")
+plt.grid(True, alpha=0.3)
+plt.legend()
+plt.xlabel('x')
+plt.ylabel('f(x)')
+
+# Salvar figura como base64
+buf = BytesIO()
+plt.savefig(buf, format='png', dpi=100, bbox_inches='tight')
+plt.close()
+buf.seek(0)
+img_str = base64.b64encode(buf.read()).decode('utf-8')
+img_str
+`;
+
+        const imgData = await pyodide.runPythonAsync(code);
+        document.getElementById('taylor-plot').innerHTML = `<img src="data:image/png;base64,${imgData}" style="width:100%; height:100%; object-fit:contain;">`;
+        showStatus('taylor', `✅ Série de Taylor executada com sucesso! ${terms} termos no intervalo [${min}, ${max}]`, 'success');
+        
+      } catch (error) {
+        showStatus('taylor', `❌ Erro ao executar Série de Taylor: ${error.message}`, 'error');
+      } finally {
+        document.getElementById('run-taylor').disabled = false;
+      }
+    }
+
+    // Executar Série de Maclaurin
+    async function runMaclaurin() {
+      if (!isInitialized) {
+        showStatus('maclaurin', '⚠️ Pyodide ainda não foi carregado. Aguarde a inicialização...', 'error');
+        return;
+      }
+
+      const terms = parseInt(document.getElementById('maclaurin-terms').value);
+      const range = parseInt(document.getElementById('maclaurin-range').value);
+      
+      try {
+        showStatus('maclaurin', `🔄 Executando Série de Maclaurin com ${terms} termos no intervalo [-${range}, ${range}]...`);
+        document.getElementById('run-maclaurin').disabled = true;
+
+        const code = `
+import numpy as np
+import matplotlib.pyplot as plt
+import math
+import base64
+from io import BytesIO
+
+def maclaurin_sin(x, n):
+    """Aproxima sin(x) com n termos da Série de Maclaurin."""
+    result = sum(((-1)**k) * (x**(2*k+1)) / math.factorial(2*k+1) for k in range(n))
+    return result
+
+# Amostragem com intervalo ajustável
+x_vals = np.linspace(-${range}, ${range}, 400)
+plt.figure(figsize=(10, 6))
+plt.plot(x_vals, np.sin(x_vals), 'b-', label='sin(x) real', linewidth=2)
+
+# Mostrar aproximações
+approx = [maclaurin_sin(x, ${terms}) for x in x_vals]
+plt.plot(x_vals, approx, 'r--', label='Maclaurin (${terms} termos)', linewidth=2)
+
+plt.title(f"Aproximação de sin(x) — Série de Maclaurin\\nIntervalo: [-${range}, ${range}] - ${terms} termos")
+plt.grid(True, alpha=0.3)
+plt.legend()
+plt.xlabel('x')
+plt.ylabel('f(x)')
+
+# Salvar figura como base64
+buf = BytesIO()
+plt.savefig(buf, format='png', dpi=100, bbox_inches='tight')
+plt.close()
+buf.seek(0)
+img_str = base64.b64encode(buf.read()).decode('utf-8')
+img_str
+`;
+
+        const imgData = await pyodide.runPythonAsync(code);
+        document.getElementById('maclaurin-plot').innerHTML = `<img src="data:image/png;base64,${imgData}" style="width:100%; height:100%; object-fit:contain;">`;
+        showStatus('maclaurin', `✅ Série de Maclaurin executada com sucesso! ${terms} termos no intervalo [-${range}, ${range}]`, 'success');
+        
+      } catch (error) {
+        showStatus('maclaurin', `❌ Erro ao executar Série de Maclaurin: ${error.message}`, 'error');
+      } finally {
+        document.getElementById('run-maclaurin').disabled = false;
+      }
+    }
+
+    // Executar Série de Fourier
+    async function runFourier() {
+      if (!isInitialized) {
+        showStatus('fourier', '⚠️ Pyodide ainda não foi carregado. Aguarde a inicialização...', 'error');
+        return;
+      }
+
+      const harmonics = parseInt(document.getElementById('fourier-terms').value);
+      
+      try {
+        showStatus('fourier', `🔄 Executando Série de Fourier com ${harmonics} harmônicos...`);
+        document.getElementById('run-fourier').disabled = true;
+
+        const code = `
+import numpy as np
+import matplotlib.pyplot as plt
+import base64
+from io import BytesIO
+
+def fourier_series(x, n_terms):
+    """Aproxima f(x)=x pela Série de Fourier com n_terms harmônicos."""
+    result = np.zeros_like(x)
+    for n in range(1, n_terms + 1):
+        result += 2 * ((-1) ** (n + 1) / n) * np.sin(n * x)
+    return result
+
+# Criar dados
+x_vals = np.linspace(-np.pi, np.pi, 600)
+y_real = x_vals
+y_approx = fourier_series(x_vals, ${harmonics})
+
+# Criar gráfico
+plt.figure(figsize=(10, 6))
+plt.plot(x_vals, y_real, 'b-', label='f(x) = x (real)', linewidth=2)
+plt.plot(x_vals, y_approx, 'r--', label=f'Série de Fourier (${harmonics} harmônicos)', linewidth=2)
+plt.title(f'Aproximação de f(x) = x usando Série de Fourier\\n${harmonics} harmônicos')
+plt.xlabel('x')
+plt.ylabel('f(x)')
+plt.grid(True, alpha=0.3)
+plt.legend()
+plt.xlim(-np.pi, np.pi)
+
+# Salvar como imagem
+buf = BytesIO()
+plt.savefig(buf, format='png', dpi=100, bbox_inches='tight')
+plt.close()
+buf.seek(0)
+img_str = base64.b64encode(buf.read()).decode('utf-8')
+img_str
+`;
+
+        const imgData = await pyodide.runPythonAsync(code);
+        document.getElementById('fourier-plot').innerHTML = `<img src="data:image/png;base64,${imgData}" style="width:100%; height:100%; object-fit:contain;">`;
+        showStatus('fourier', `✅ Série de Fourier executada com sucesso usando ${harmonics} harmônicos!`, 'success');
+        
+      } catch (error) {
+        showStatus('fourier', `❌ Erro ao executar Série de Fourier: ${error.message}`, 'error');
+      } finally {
+        document.getElementById('run-fourier').disabled = false;
+      }
+    }
+
+    // Funções de reinicialização
+    function resetTaylor() {
+      document.getElementById('taylor-terms').value = 4;
+      document.getElementById('taylor-terms-value').textContent = '4';
+      document.getElementById('taylor-min').value = 0.5;
+      document.getElementById('taylor-min-value').textContent = '0.5';
+      document.getElementById('taylor-max').value = 2.0;
+      document.getElementById('taylor-max-value').textContent = '2.0';
+      document.getElementById('taylor-plot').innerHTML = '<div class="loading"><p>O gráfico será exibido aqui após a execução...</p></div>';
+      showStatus('taylor', 'Configurações da Série de Taylor reiniciadas.');
+    }
+
+    function resetMaclaurin() {
+      document.getElementById('maclaurin-terms').value = 3;
+      document.getElementById('maclaurin-terms-value').textContent = '3';
+      document.getElementById('maclaurin-range').value = 10;
+      document.getElementById('maclaurin-range-value').textContent = '-10 a 10';
+      document.getElementById('maclaurin-plot').innerHTML = '<div class="loading"><p>O gráfico será exibido aqui após a execução...</p></div>';
+      showStatus('maclaurin', 'Configurações da Série de Maclaurin reiniciadas.');
+    }
+
+    function resetFourier() {
+      document.getElementById('fourier-terms').value = 10;
+      document.getElementById('fourier-terms-value').textContent = '10';
+      document.getElementById('fourier-plot').innerHTML = '<div class="loading"><p>O gráfico será exibido aqui após a execução...</p></div>';
+      showStatus('fourier', 'Configurações da Série de Fourier reiniciadas.');
+    }
+
+    // Event listeners
+    document.getElementById('run-taylor').addEventListener('click', runTaylor);
+    document.getElementById('reset-taylor').addEventListener('click', resetTaylor);
+    document.getElementById('run-maclaurin').addEventListener('click', runMaclaurin);
+    document.getElementById('reset-maclaurin').addEventListener('click', resetMaclaurin);
+    document.getElementById('run-fourier').addEventListener('click', runFourier);
+    document.getElementById('reset-fourier').addEventListener('click', resetFourier);
+
+    // Inicializar quando a página carregar
+    document.addEventListener('DOMContentLoaded', function() {
+      initializePyodide();
+    });
+  </script>
+</body>
+</html>
